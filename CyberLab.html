@@ -1500,8 +1500,8 @@ html, body {
     ] },
     idp:        { cat: 3, kind: 'automation', title: 'FALCON IDP',         sub: 'Identity Policy Enforcement', glyph: '⛨', color: PAL.cyan,    cost: 440,  szW: 1.00, szH: 0.92, inputs: [{dt:'identity'},{dt:'correlated'}], outputs: [{dt:'agent'}] },
     // ── CLOUD & ZERO TRUST ───────────────────────────────────────────────────────────────────────────────────
-    cwp:        { cat: 4, kind: 'source',     title: 'FALCON CWP',         sub: 'Cloud Workload Protection',   glyph: '⎈', color: PAL.teal,    cost: 360,  szW: 1.00, szH: 0.82, inputs: [], outputs: [{dt:'cloud'}] },
-    pangea:     { cat: 4, kind: 'source',     title: 'FALCON CLOUD SEC.',  sub: 'CrowdStrike CNAPP / CSPM',    glyph: '☁', color: PAL.teal,    cost: 520,  szW: 1.00, szH: 0.82, inputs: [], outputs: [{dt:'cloud'}] },
+    // Falcon Cloud Security: CWP + CNAPP/CSPM unified — workload runtime + cloud posture in one sensor
+    falcon_cloud:{ cat: 4, kind: 'source',    title: 'FALCON CLOUD',       sub: 'CWP · CNAPP · CSPM Unified',  glyph: '☁', color: PAL.teal,    cost: 560,  szW: 1.05, szH: 0.88, inputs: [], outputs: [{dt:'cloud'}] },
     sgnl:       { cat: 4, kind: 'automation', title: 'FALCON ZERO TRUST',  sub: 'JIT Access · Identity Rail',  glyph: '⌸', color: PAL.cyan,    cost: 480,  szW: 1.05, szH: 1.05, inputs: [{dt:'identity'},{dt:'cloud'},{dt:'endpoint'}], outputs: [{dt:'agent'}] },
     // ── INTELLIGENCE ────────────────────────────────────────────────────────────────────────────────────────
     // Intelligence modules now output threat_intel (separate type) so it feeds SIEM + Fusion correctly
@@ -1532,8 +1532,39 @@ html, body {
           desc:'Zero standing privilege. Every credential request evaluated live. MFA fatigue attacks neutralized.' }
       ]
     },
-        cao_elite:  { cat: 6, kind: 'intel',      title: 'CAO PREMIUM',        sub: 'Counter Adversary Ops',       glyph: '✸', color: '#FFD700',   cost: 1200, szW: 1.22, szH: 1.00, inputs: [{dt:'correlated'}], outputs: [{dt:'threat_intel'}] },
-    portal:     { cat: 6, kind: 'portal',     title: 'PORTAL',             sub: 'Prestige Uplink',             glyph: '◈', color: PAL.magenta, cost: 0,    szW: 1.00, szH: 0.90, inputs: [{dt:'agent'},{dt:'correlated'},{dt:'threat_intel'}], outputs: [] }
+        cao_elite:       { cat: 6, kind: 'intel',  title: 'CAO PREMIUM',        sub: 'Counter Adversary Ops',       glyph: '✸', color: '#FFD700',   cost: 1200, szW: 1.22, szH: 1.00, inputs: [{dt:'correlated'}],                              outputs: [{dt:'threat_intel'}] },
+
+    // ── BROWSER & DATA ────────────────────────────────────────────────────────────────────────────────────────
+    // Seraphic: browser runtime security — GenAI / SaaS data exfil blocked at the session layer
+    seraphic:     { cat: 3, kind: 'enrich',     title: 'FALCON SERAPHIC',    sub: 'Browser Security · GenAI DLP', glyph: '⌬', color: '#A78BFA',   cost: 850,  szW: 1.05, szH: 0.92, inputs: [{dt:'identity'},{dt:'endpoint'},{dt:'cloud'}],              outputs: [{dt:'threat_intel'},{dt:'correlated'}] },
+    // Data Protection: DLP across endpoints, SaaS, GenAI — similarity detection on exfil
+    data_protect: { cat: 3, kind: 'automation', title: 'FALCON DATA PROTECT', sub: 'DLP · Endpoint · SaaS · AI',   glyph: '⊗', color: '#F472B6',   cost: 950,  szW: 1.10, szH: 1.05, inputs: [{dt:'endpoint'},{dt:'cloud'},{dt:'identity'}],              outputs: [{dt:'agent'},{dt:'threat_intel'}] },
+
+    // ── MOBILE & HARDWARE ─────────────────────────────────────────────────────────────────────────────────────
+    // Falcon for Mobile: first mobile EDR — iOS/Android behavioral detection
+    falcon_mobile:{ cat: 1, kind: 'source',     title: 'FALCON FOR MOBILE',  sub: 'iOS · Android EDR',            glyph: '⊞', color: '#34D399',   cost: 750,  szW: 1.00, szH: 0.82, inputs: [],                                                         outputs: [{dt:'endpoint'},{dt:'identity'}] },
+    // Device Control: USB/removable media enforcement with ML PII detection
+    device_ctrl:  { cat: 3, kind: 'automation', title: 'FALCON DEVICE CTRL', sub: 'USB · Removable Media DLP',    glyph: '⊟', color: '#FB923C',   cost: 680,  szW: 1.00, szH: 0.92, inputs: [{dt:'endpoint'}],                                          outputs: [{dt:'agent'},{dt:'correlated'}] },
+    // FileVantage: file integrity + registry monitoring — webshell and persistence detection
+    filevantage:  { cat: 3, kind: 'enrich',     title: 'FALCON FILEVANTAGE', sub: 'File Integrity · FIM',         glyph: '⊕', color: '#FBBF24',   cost: 700,  szW: 1.05, szH: 0.92, inputs: [{dt:'endpoint'}],                                          outputs: [{dt:'correlated'},{dt:'threat_intel'}] },
+    // Firewall Management: host firewall policy + lateral movement detection
+    firewall_mgmt:{ cat: 3, kind: 'automation', title: 'FALCON FIREWALL',    sub: 'Host Firewall · Segmentation', glyph: '⊘', color: '#F87171',   cost: 720,  szW: 1.05, szH: 1.00, inputs: [{dt:'network'},{dt:'endpoint'}],                            outputs: [{dt:'agent'},{dt:'correlated'}] },
+
+    // ── EXPOSURE MANAGEMENT ───────────────────────────────────────────────────────────────────────────────────
+    // FEM: unified platform — Falcon Surface (EASM) + Spotlight vuln mgmt + ExPRT.AI risk prioritization
+    fem:          { cat: 4, kind: 'intel',      title: 'FALCON EXPOSURE MGT',sub: 'EASM · ExPRT.AI · FIM',        glyph: '◉', color: '#FCD34D',   cost: 980,  szW: 1.18, szH: 1.05, inputs: [{dt:'endpoint'},{dt:'network'},{dt:'cloud'}],              outputs: [{dt:'threat_intel'},{dt:'correlated'}] },
+
+    // ── LOG ANALYTICS ─────────────────────────────────────────────────────────────────────────────────────────
+    // LogScale: petabyte-scale log ingest + sub-second search — standalone or feeds NG-SIEM
+    logscale:     { cat: 2, kind: 'enrich',     title: 'FALCON LOGSCALE',    sub: 'Petabyte Log Analytics',       glyph: '≡', color: '#86EFAC',   cost: 650,  szW: 1.10, szH: 1.05, inputs: [{dt:'endpoint'},{dt:'network'},{dt:'cloud'},{dt:'identity'}], outputs: [{dt:'correlated'},{dt:'threat_intel'}] },
+
+    // ── ELITE SERVICES ────────────────────────────────────────────────────────────────────────────────────────
+    // Falcon Complete MDR: 24/7 managed detection + expert autonomous response ($2M breach warranty)
+    falcon_complete:{ cat: 5, kind: 'agent',    title: 'FALCON COMPLETE',    sub: 'MDR · 13-min Containment',     glyph: '✢', color: '#C084FC',   cost: 1100, szW: 1.18, szH: 1.12, inputs: [{dt:'correlated'},{dt:'threat_intel'},{dt:'agent'}],        outputs: [{dt:'agent'}] },
+    // Insight XDR: multi-domain correlation — endpoint + identity + cloud + mobile unified
+    insight_xdr:  { cat: 5, kind: 'correlator', title: 'FALCON INSIGHT XDR', sub: 'Cross-Domain Correlation',     glyph: '⌖', color: '#818CF8',   cost: 1000, szW: 1.20, szH: 1.10, inputs: [{dt:'correlated'},{dt:'identity'},{dt:'cloud'},{dt:'threat_intel'}], outputs: [{dt:'correlated'},{dt:'agent'}] },
+
+    portal:          { cat: 6, kind: 'portal', title: 'PORTAL',             sub: 'Prestige Uplink',             glyph: '◈', color: PAL.magenta, cost: 0,    szW: 1.00, szH: 0.90, inputs: [{dt:'agent'},{dt:'correlated'},{dt:'threat_intel'}], outputs: [] }
   };
 
   // Shop categories — used for palette grouping. No unlock gates; price is the only barrier.
@@ -1576,9 +1607,9 @@ html, body {
     { id: 'intel_siem',      needs: ['cao_intel','ngsiem'],                   name: 'THREAT-INTEL ENRICHED SIEM',
       color: '#F5A623', boost: 1.2,
       director: 'Adversary indicators loaded into correlation engine. Known C2 infrastructure now triggers detections automatically.' },
-    { id: 'cloud_protect',   needs: ['cwp','ngsiem','sandbox'],               name: 'CLOUD WORKLOAD PROTECTION',
+    { id: 'cloud_protect',   needs: ['falcon_cloud','ngsiem','sandbox'],       name: 'CLOUD WORKLOAD PROTECTION',
       color: '#2DD4BF', boost: 1.35,
-      director: 'Cloud coverage complete. Runtime telemetry, file detonation, correlation — cloud pivot contained before it cascades.' },
+      director: 'Falcon Cloud plus Sandbox plus SIEM: container runtime, detonation, correlation unified. Cloud pivot contained before it cascades.' },
     { id: 'agentic_insider', needs: ['charlotte','ngsiem','id_sensor'],       name: 'AGENTIC SOC — INSIDER THREAT',
       color: '#C77DFF', boost: 1.5,
       director: 'Charlotte plus Identity rail is your synthetic employee detector. FAMOUS CHOLLIMA behavioral baseline locked. We see Jack.' },
@@ -1603,9 +1634,30 @@ html, body {
     { id: 'vuln_hunt',       needs: ['spotlight','overwatch'],                name: 'VULNERABILITY-LED HUNTING',
       color: '#F5A623', boost: 1.45,
       director: 'Spotlight plus OverWatch: known vulnerabilities now feed behavioral hunt queries. We are hunting the exploit, not waiting for the breach.' },
+    { id: 'vuln_hunt_elite', needs: ['spotlight_elite','overwatch'],          name: 'ZERO-DAY HUNT PROTOCOL',
+      color: '#FF8C00', boost: 1.75,
+      director: 'Spotlight Elite plus OverWatch: zero-day CVEs mapped to live adversary campaigns. We prosecute vulnerabilities before they are weaponized.' },
     { id: 'jit_zero',        needs: ['jit','id_sensor','ngsiem'],             name: 'ZERO STANDING PRIVILEGE',
       color: '#00E5FF', boost: 1.35,
-      director: 'JIT + Identity + SIEM: every privileged session evaluated live against threat context. This is identity-first zero trust in practice.' }
+      director: 'JIT + Identity + SIEM: every privileged session evaluated live against threat context. This is identity-first zero trust in practice.' },
+    { id: 'browser_dlp',    needs: ['seraphic','data_protect'],              name: 'BROWSER + DATA SHIELD',
+      color: '#A78BFA', boost: 1.4,
+      director: 'Seraphic plus Data Protection: GenAI and SaaS exfiltration impossible. Data tracked from creation to destination. The leak surface just closed.' },
+    { id: 'mobile_endpoint',needs: ['falcon_mobile','ep_sensor'],            name: 'UNIFIED ENDPOINT COVERAGE',
+      color: '#34D399', boost: 1.25,
+      director: 'Mobile EDR plus desktop Sensor: every device, every OS, every threat vector covered. No endpoint is a blind spot anymore.' },
+    { id: 'surface_hunt',   needs: ['fem','overwatch'],                      name: 'EXPOSURE-LED HUNTING',
+      color: '#FCD34D', boost: 1.55,
+      director: 'FEM plus OverWatch: ExPRT.AI ranks the vulnerabilities adversaries will hit next, OverWatch hunts the exploitation attempt in real time. We are defending the future attack.' },
+    { id: 'full_visibility', needs: ['logscale','ngsiem','insight_xdr'],     name: 'FULL SPECTRUM VISIBILITY',
+      color: '#86EFAC', boost: 1.6,
+      director: 'LogScale feeds NG-SIEM feeds Insight XDR. Petabyte log retention, cross-domain correlation, unified attack picture. Nothing hides in this lab.' },
+    { id: 'mdr_complete',   needs: ['falcon_complete','charlotte'],           name: 'AUTONOMOUS MDR + AGENTIC SOC',
+      color: '#C084FC', boost: 1.8,
+      director: 'Falcon Complete plus Charlotte AI: human-speed MDR backed by machine-speed agentic analysis. Mean containment under 4 minutes.' },
+    { id: 'hardware_dlp',   needs: ['device_ctrl','data_protect','filevantage'], name: 'ENDPOINT DATA LOCKDOWN',
+      color: '#FB923C', boost: 1.55,
+      director: 'Device Control, Data Protection, FileVantage: USB blocked, DLP enforced, every file write watched. Insider threat surface is zero.' }
   ];
 
   // ── Case Enrichment Fields — what each module adds to triage ──
@@ -2027,7 +2079,7 @@ html, body {
       title: 'LEX · VETERAN ANALYST',
       msg: '<b>ALPHV dropper is active and Sandbox is not wired.</b> This dropper regenerates its hash every hour — static AV misses every single variant. Without behavioral detonation in the pipeline, this reaches your domain controller undetected. Deploy Sandbox now. Not after the next case.' },
     { key: 'act3_cloud_warn',
-      when: () => G.actIndex === 2 && !G.modules.some(m => m.defKey === 'sgnl' || m.defKey === 'pangea'),
+      when: () => G.actIndex === 2 && !G.modules.some(m => m.defKey === 'sgnl' || m.defKey === 'falcon_cloud'),
       title: 'LEX · VETERAN ANALYST',
       msg: '<b>Cloud token harvest already in progress.</b> LABYRINTH CHOLLIMA\'s implant is pulling OAuth tokens right now. Without JIT access gates, every replayed token is valid for hours. One compromised cloud session becomes a persistent foothold in every tenant. Wire Zero Trust before the pivot fires.' },
     { key: 'act4_lotl_warn',
@@ -2060,13 +2112,9 @@ html, body {
       first: 'Falcon Discover online. Full asset inventory active. Rogue devices, shadow IT, C2 beacons, east-west lateral movement — network visibility is the difference between catching a pivot and reading about it in the breach notification.',
       gap: 'Network visibility absent. C2 beaconing, DNS tunneling, lateral SMB movement — happening on the wire right now. No telemetry means no detection.'
     },
-    cwp:        {
-      first: 'CWP live. Container runtime, Lambda functions, Kubernetes — every cloud workload is now generating behavioral telemetry. ALPHV loves unmonitored cloud workloads as persistence staging.',
-      gap: 'Cloud workloads running blind. Container escapes, Lambda abuse, runtime implants — visible in zero of these environments. An unmonitored cloud workload is a free persistence layer.'
-    },
-    pangea:     {
-      first: 'Falcon Cloud Security active. CSPM auditing your entire IAM posture and supply chain configuration in real time. Misconfigured roles, open storage buckets, overprivileged service accounts — none of them are hidden anymore.',
-      gap: 'Cloud posture unknown. Misconfigured IAM roles, exposed storage, overprivileged accounts — these are the open doors Labyrinth Chollima walks through. CSPM is not deployed.'
+    falcon_cloud: {
+      first: 'Falcon Cloud live. CWP runtime telemetry, CNAPP posture auditing, CSPM drift detection — container escapes, Lambda abuse, IAM drift, open buckets. Every cloud workload is now visible and every misconfiguration is flagged before the adversary finds it.',
+      gap: 'Cloud blind spot active. Container escapes, Lambda implants, misconfigured IAM, open storage — zero visibility into any of it. Labyrinth Chollima pivots through cloud environments because no one is watching. Deploy Falcon Cloud now.'
     },
     ngsiem:     {
       first: 'NG-SIEM correlation engine active. Isolated telemetry events become attack chains. Individual anomalies connect into adversary campaigns. The same data that was noise five minutes ago is now evidence of a breach in progress.',
@@ -2114,7 +2162,7 @@ html, body {
     { key: 'endpoint',  label: 'ENDPOINT',  icon: '▤', needs: ['ep_sensor'], desc: 'Process execution, file writes, memory — LOLBins & ransomware' },
     { key: 'identity',  label: 'IDENTITY',  icon: '⚷', needs: ['id_sensor'], desc: 'Auth events, MFA, credential abuse & lateral movement' },
     { key: 'network',   label: 'NETWORK',   icon: '≋', needs: ['net_sensor'], desc: 'Asset inventory, C2 beacons, east-west traffic anomalies' },
-    { key: 'cloud',     label: 'CLOUD',     icon: '⎈', needs: ['cwp', 'pangea'], desc: 'Workload runtime, CSPM posture, cloud token abuse' },
+    { key: 'cloud',     label: 'CLOUD',     icon: '☁', needs: ['falcon_cloud'], desc: 'Workload runtime, CNAPP posture, CSPM drift, cloud token abuse' },
     { key: 'siem',      label: 'CORRELATION', icon: '◈', needs: ['ngsiem'], desc: 'Cross-source correlation — turns alerts into attack chains' },
     { key: 'response',  label: 'RESPONSE',  icon: '⬢', needs: ['fusion', 'idp'], desc: 'Automated containment, identity enforcement, SOAR playbooks' },
     { key: 'intel',     label: 'INTEL',     icon: '☣', needs: ['cao_intel', 'overwatch'], desc: 'Adversary profiles, managed hunting across all telemetry including identity' },
@@ -2658,7 +2706,7 @@ html, body {
     events: [],          // scheduled events (cloned from act)
     budget: { spent: 0, pool: 2000 },
     income: { passive: 0, earned: 0 },   // Upload Labs-style earning loop
-    caseQueue: { maxActive: 2, expireMs: 60000, silent: [] }, // case throttle
+    caseQueue: { maxActive: 2, expireMs: 90000, silent: [], lastSpawnT: 0, spawnGapMs: 18000 }, // case throttle
     lexTips: { shown: {}, lastTipT: 0 }, // contextual Lex guidance
     labs: 120,
     tokens: 0,
@@ -2697,6 +2745,7 @@ html, body {
     attractTimer: 0,
     lastIdleT: 0,
     portalVisible: false,
+    loop: 0,           // full loops through all 6 acts (escalates difficulty + doctrine)
     cameraShakeT: 0,
     cameraShakeAmp: 0,
     flashFade: 0,
@@ -3308,6 +3357,37 @@ html, body {
   function modW(def) { return Math.round(MODULE_W * (def.szW || 1)); }
   function modH(def) { return Math.round(MODULE_H * (def.szH || 1)); }
 
+  // ── Module activation voices — fired once when a module is first placed ──────
+  const MODULE_VOICES = {
+    id_sensor:   { title: 'FALCON IDENTITY · ONLINE',    msg: 'Identity sensor live. Every login, every MFA event, every SSO token — we see it now. Credential abuse detection active.' },
+    ep_sensor:   { title: 'FALCON SENSOR · ONLINE',      msg: 'Endpoint telemetry streaming. Process trees, memory scans, file events — all of it. If malware breathes on this machine, we know.' },
+    net_sensor:  { title: 'NETWORK DETECTION · ONLINE',  msg: 'Network visibility established. C2 beaconing, lateral movement, exfiltration patterns — all monitored. They cannot move without us seeing.' },
+    ngsiem:      { title: 'FALCON NG-SIEM · ONLINE',     msg: 'Humio-powered correlation engine active. Cross-sensor data now weaving into attack chains. The picture is getting clearer.' },
+    fusion:      { title: 'FALCON FUSION · ONLINE',      msg: 'SOAR playbooks armed. The moment a detection fires, automated response kicks in. This is machine-speed defense.' },
+    sandbox:     { title: 'FALCON SANDBOX · ONLINE',     msg: 'Detonation chamber active. Every suspicious binary gets exploded in isolation. We find the payload before it reaches production.' },
+    idp:         { title: 'FALCON IDP · ONLINE',         msg: 'Identity policy enforcement active. Privilege escalation attempts will be blocked at the authentication layer, not after.' },
+    falcon_cloud:{ title: 'FALCON CLOUD · ONLINE',        msg: 'Unified cloud sensor active. CWP runtime telemetry, CNAPP posture auditing, CSPM drift detection — every cloud workload visible. No container, VM or serverless function runs blind.' },
+    sgnl:        { title: 'FALCON ZERO TRUST · ONLINE',  msg: 'Zero trust architecture enforced. Every access request validated in real time. Standing privilege is dead in this environment.' },
+    overwatch:   { title: 'FALCON OVERWATCH · ONLINE',   msg: 'CrowdStrike hunters are now watching your environment 24/7. Elite adversary tradecraft is their specialty. Nothing gets through clean.' },
+    falconx:     { title: 'FALCON INTELLIGENCE · ONLINE', msg: 'Adversary intelligence feeds live. Actor profiles, TTP mapping, campaign attribution — we know who they are before they know we are watching.' },
+    charlotte:   { title: 'CHARLOTTE AI · ONLINE',       msg: 'Agentic SOC analyst active. Charlotte processes signals at machine speed, correlates behavioral anomalies no human would catch in time.' },
+    spotlight:   { title: 'FALCON SPOTLIGHT · ONLINE',   msg: 'Vulnerability radar active. Every CVE mapped to your exposed assets, ranked by adversary weaponization likelihood. We see your attack surface.' },
+    spotlight_elite: { title: 'SPOTLIGHT ELITE · ONLINE', msg: 'Zero-day correlation engine online. CVEs are now mapped to live adversary campaigns. We know which vulnerability they plan to exploit next.' },
+    cao_elite:   { title: 'CAO PREMIUM · ONLINE',        msg: 'Counter Adversary Operations at full capacity. Nation-state actor prosecuted in real time. Campaign attribution confirmed.' },
+    jit:         { title: 'FALCON IDTM · ONLINE',        msg: 'Identity Threat Management active. Every privileged request evaluated live. Zero standing privilege. Credential theft just became worthless.' },
+    seraphic:    { title: 'FALCON SERAPHIC · ONLINE',    msg: 'Browser security layer active. GenAI data exfiltration blocked at the session layer. Every upload, every paste — inspected in real time.' },
+    data_protect:{ title: 'FALCON DATA PROTECTION · ONLINE', msg: 'DLP active across endpoints, browsers, and SaaS. Sensitive data is tracked even after copy-paste. Exfiltration just hit a wall.' },
+    falcon_mobile:{ title: 'FALCON FOR MOBILE · ONLINE', msg: 'Mobile EDR active on iOS and Android. Phishing links blocked, risky apps flagged, credential theft stopped before it reaches your network.' },
+    device_ctrl: { title: 'FALCON DEVICE CONTROL · ONLINE', msg: 'USB enforcement active. Every removable media connection scanned. PII classification running. That USB drive is not going anywhere.' },
+    filevantage: { title: 'FALCON FILEVANTAGE · ONLINE', msg: 'File integrity monitoring live. Registry changes, webshell drops, persistence mechanisms — we detect them the moment they touch disk.' },
+    fem:          { title: 'FALCON EXPOSURE MGT · ONLINE', msg: 'FEM active. Falcon Surface mapping every external asset. ExPRT.AI scoring vulnerabilities by exploitation likelihood. We see your attack surface the way the adversary does — and we remediate the 5% that will actually get you breached.' },
+    falcon_cloud: { title: 'FALCON CLOUD · ONLINE',        msg: 'Unified cloud sensor active. CWP runtime telemetry, CNAPP posture auditing, CSPM drift detection — every container, VM, Lambda, and service account now visible. No cloud workload runs blind.' },
+    falcon_complete:{ title: 'FALCON COMPLETE MDR · ONLINE', msg: 'Managed Detection and Response activated. CrowdStrike experts take autonomous containment actions on your behalf. 13-minute mean containment.' },
+    logscale:    { title: 'FALCON LOGSCALE · ONLINE',    msg: 'Petabyte-scale log ingestion active. Sub-second search across all telemetry. Nothing gets buried in log noise ever again.' },
+    firewall_mgmt:{ title: 'FALCON FIREWALL MGMT · ONLINE', msg: 'Host firewall centrally managed. Lateral movement policies enforced at the network layer. Segmentation is now automatic.' },
+    insight_xdr: { title: 'FALCON INSIGHT XDR · ONLINE', msg: 'Cross-domain correlation live. Endpoint, identity, cloud, and network signals unified into single attack chains. The full picture, instantly.' },
+  };
+
   function placeModule(defKey, x, y) {
     const def = MODULE_DEFS[defKey];
     if (!def) return null;
@@ -3326,6 +3406,12 @@ html, body {
       upgrades: []
     };
     G.modules.push(m);
+    // ── Activation sequence ───────────────────────────────────────
+    if (G.state === STATE.PLAYING) {
+      const voice = MODULE_VOICES[defKey];
+      flashScreen(0.25, 180, def.color || '#00E5FF');
+      if (voice) setTimeout(() => showVoicemail(voice.title, voice.msg, 6000), 400);
+    }
     return m;
   }
 
@@ -3879,7 +3965,7 @@ html, body {
     let q = wiredFraction * 55;
 
     // Sensor coverage bonus (20 pts max)
-    const sensors = ['ep_sensor','id_sensor','net_sensor','cwp','pangea'];
+    const sensors = ['ep_sensor','id_sensor','net_sensor','falcon_cloud'];
     q += (sensors.filter(k => wiredKeys.has(k)).length / sensors.length) * 20;
 
     // Active synergy bonus (25 pts max)
@@ -4033,11 +4119,25 @@ html, body {
   // =========================================================
   //                      CASES & TRIAGE
   // =========================================================
-  // Case difficulty by act:
-  //   Act I  (idx 0) → OBVIOUS   (clean signals, direct answer)
-  //   Act II-III      → AMBIGUOUS (noisy signals, need correlation)
-  //   Act IV+         → DECEPTIVE (adversary obfuscates, easy to dismiss wrong)
+  // Doctrines — one per full loop through all 6 acts
+  const DOCTRINES = [
+    'IDENTITY-FIRST',    // loop 0 — learn the basics
+    'ZERO-TRUST',        // loop 1 — assume breach everywhere
+    'HUNT-FORWARD',      // loop 2 — proactive threat hunting
+    'AUTONOMOUS-SOC',    // loop 3 — AI-driven operations
+    'SOVEREIGN-DEFENDER' // loop 4+ — elite, no guardrails
+  ];
+  function currentDoctrine() { return DOCTRINES[Math.min(G.loop, DOCTRINES.length - 1)]; }
+
+  // Case difficulty by act + loop escalation:
+  //   Loop 0: OBVIOUS → AMBIGUOUS → DECEPTIVE (standard progression)
+  //   Loop 1: AMBIGUOUS from Act I, DECEPTIVE from Act III+
+  //   Loop 2+: everything DECEPTIVE — no easy cases ever again
   function caseDifficulty() {
+    if (G.loop >= 2) return 'DECEPTIVE';
+    if (G.loop === 1) {
+      return G.actIndex <= 1 ? 'AMBIGUOUS' : 'DECEPTIVE';
+    }
     if (G.actIndex === 0) return 'OBVIOUS';
     if (G.actIndex <= 2)  return 'AMBIGUOUS';
     return 'DECEPTIVE';
@@ -4107,8 +4207,9 @@ html, body {
       return;
     }
     
-    // Throttle: max 2 simultaneous active cases
-    if (G.activeCases.length >= G.caseQueue.maxActive) {
+    // Throttle: max active + minimum time gap between spawns
+    const timeSinceLast = G.campT - (G.caseQueue.lastSpawnT || 0);
+    if (G.activeCases.length >= G.caseQueue.maxActive || timeSinceLast < G.caseQueue.spawnGapMs) {
       G.caseQueue.silent.push(c);
       return;
     }
@@ -4117,6 +4218,7 @@ html, body {
 
   function _activateCase(c, anchor) {
     G.activeCases.push(c);
+    G.caseQueue.lastSpawnT = G.campT;
     anchor = anchor || G.modules.find(m => m.id === c.anchorId) || G.modules[0];
     if (anchor) {
       anchor.alert = 1;
@@ -4413,7 +4515,7 @@ html, body {
       identity:   { modKey: 'id_sensor',  label: 'IDENTITY SENSOR',    color: '#00E5FF', icon: '⚷' },
       endpoint:   { modKey: 'ep_sensor',  label: 'ENDPOINT SENSOR',    color: '#FC0A2A', icon: '▤' },
       network:    { modKey: 'net_sensor', label: 'NETWORK DISCOVERY',  color: '#FFB300', icon: '≋' },
-      cloud:      { modKey: 'cwp',        label: 'CLOUD SENSOR',       color: '#2DD4BF', icon: '⎈' },
+      cloud:      { modKey: 'falcon_cloud',label: 'CLOUD SENSOR',       color: '#2DD4BF', icon: '☁' },
       correlated: { modKey: 'ngsiem',     label: 'NG-SIEM WIRING',     color: '#00E676', icon: '◈' },
     };
     Object.entries(domainToModule).forEach(([dt, meta]) => {
@@ -4500,12 +4602,18 @@ html, body {
     setTimeout(() => buildPalette(), 180);
   }
 
-  function flashScreen(maxAlpha, ms) {
+  function flashScreen(maxAlpha, ms, color) {
     const f = $('cl-flash');
     if (!f) return;
+    if (color) {
+      const r = hexToRgb(color) || {r:255,g:255,b:255};
+      f.style.background = `radial-gradient(ellipse at center, rgba(${r.r},${r.g},${r.b},0.7) 0%, rgba(${r.r},${r.g},${r.b},0.18) 60%, transparent 100%)`;
+    } else {
+      f.style.background = '';
+    }
     f.style.opacity = maxAlpha;
     f.classList.add('show');
-    setTimeout(() => { f.classList.remove('show'); f.style.opacity = 0; }, ms || 200);
+    setTimeout(() => { f.classList.remove('show'); f.style.opacity = 0; f.style.background = ''; }, ms || 200);
   }
 
   function shake(ms, amp) {
@@ -4711,8 +4819,13 @@ html, body {
   // =========================================================
   //                      PORTAL / END ACT
   // =========================================================
+  let _lastSitrepT = 0;
   function endAct() {
     if (G.state !== STATE.PLAYING) return;
+    // Hard cooldown — sitrep cannot fire more than once per 8 seconds
+    const now = performance.now();
+    if (now - _lastSitrepT < 8000) return;
+    _lastSitrepT = now;
     G.state = STATE.ENDING;
     const act     = ACTS[G.actIndex];
     const stats   = computeStats();
@@ -4720,7 +4833,7 @@ html, body {
     const breached = stats.grade === 'F';
 
     // ── SITUATION REPORT ────────────────────────────────────────
-    $('cl-sr-phase').textContent   = 'ACT ' + act.num;
+    $('cl-sr-phase').textContent   = G.loop > 0 ? 'L' + G.loop + ' · ACT ' + act.num : 'ACT ' + act.num;
     $('cl-sr-adversary').textContent = act.adversary;
     const outcomeEl = $('cl-sr-outcome');
     outcomeEl.textContent = breached ? 'BREACHED' : 'CONTAINED';
@@ -4787,6 +4900,7 @@ html, body {
   // ── Act advance — PRESERVES modules + wiring ──────────────────
   function advanceAct() {
     $('cl-sitrep').classList.remove('show');
+    _lastSitrepT = 0; // allow next act to end normally
     G.state = STATE.PLAYING;
 
     // Apply pending budget bonus
@@ -4895,6 +5009,7 @@ html, body {
     G.tokens += stats.tokensEarned;
     updateHUD();
     $('cl-portal-panel').classList.remove('show');
+    $('cl-sitrep').classList.remove('show');  // must hide sitrep or new act re-triggers it
     runPortalSequence();
   }
 
@@ -4964,8 +5079,16 @@ html, body {
         G.threatPressure = { identity: 0, endpoint: 0, network: 0, cloud: 0, correlated: 0 };
         G._needsCache = []; G._upgradeBtns = [];
         G.portalPullT = 0; G.portalVisible = false;
-        // Wrap actIndex so the game loops forever through all acts
+        // Advance act — detect full-loop wrap
+        const prevActIndex = G.actIndex;
         G.actIndex = (G.actIndex + 1) % ACTS.length;
+        const loopComplete = G.actIndex === 0 && prevActIndex === ACTS.length - 1;
+        if (loopComplete) {
+          G.loop += 1;
+          // On loop escalation bump trust ceiling and fire extra shake
+          flashScreen(1.0, 500);
+          shake(500, 18);
+        }
         // Unlock next tier
         const nextTier = Math.min(5, Object.values(G.unlockedTiers).filter(x=>x).length + 1);
         G.unlockedTiers[nextTier] = true;
@@ -4974,8 +5097,14 @@ html, body {
         buildPalette();
         scheduleAct(G.actIndex);
         updateHUD();
-        showCaption('CYCLE ' + String(G.cycle).padStart(2,'0') + ' · ' + ACTS[G.actIndex].adversary, 'PRESTIGE · PIPELINE PRESERVED');
-        showVoicemail('INCOMING · CAO OPS', ACTS[G.actIndex].brief, 9000);
+        const doctrine = currentDoctrine();
+        if (loopComplete) {
+          showCaption('LOOP ' + G.loop + ' · DOCTRINE: ' + doctrine, 'ESCALATION · ALL THREATS HARDER');
+          showVoicemail('CAO · DOCTRINE SHIFT', 'You survived the full campaign. The adversaries have adapted. Doctrine is now ' + doctrine + '. Same pipeline — harder everything. Good luck.', 11000);
+        } else {
+          showCaption('CYCLE ' + String(G.cycle).padStart(2,'0') + ' · ' + ACTS[G.actIndex].adversary, 'PRESTIGE · PIPELINE PRESERVED');
+          showVoicemail('INCOMING · CAO OPS', ACTS[G.actIndex].brief, 9000);
+        }
       }, 340);
     };
     requestAnimationFrame(step);
@@ -4985,7 +5114,7 @@ html, body {
   //                      HUD UPDATE
   // =========================================================
   function updateHUD() {
-    const cyc = $('cl-hv-cycle'); if (cyc) cyc.textContent = 'CYCLE ' + String(G.cycle).padStart(2, '0') + ' · DOCTRINE: IDENTITY-FIRST';
+    const cyc = $('cl-hv-cycle'); if (cyc) cyc.textContent = 'CYCLE ' + String(G.cycle).padStart(2, '0') + ' · DOCTRINE: ' + currentDoctrine();
     refreshPipelineQuality();
     const avail = G.budget.pool - G.budget.spent;
     const flex = $('cl-hv-flex'); if (flex) flex.textContent = avail.toLocaleString();
@@ -6089,9 +6218,9 @@ html, body {
       ctx.restore();
     }
 
-    // ── CWP / PANGEA (cwp, pangea) ────────────────────────────────────
+    // ── FALCON CLOUD (falcon_cloud) ───────────────────────────────────
     // Cloud shape (bezier curves) with data streams flowing into it
-    else if (defKey === 'cwp' || defKey === 'pangea') {
+    else if (defKey === 'falcon_cloud') {
       ctx.save();
       
       const cloudW = 28;
@@ -6296,6 +6425,69 @@ html, body {
       ctx.restore();
     }
 
+    // ── (spotlight_elite removed — use spotlight upgrade path) ────────
+    // Placeholder: falls through to generic renderer if somehow referenced
+    else if (defKey === '_unused_spotlight_elite') {
+      ctx.save();
+      const sr = 15;
+      const angle1 = (now * 0.0009) % (Math.PI * 2);
+      const angle2 = angle1 + Math.PI; // opposite beam
+
+      // Outer pulsing warning ring
+      ctx.save();
+      ctx.strokeStyle = def.color;
+      ctx.globalAlpha = 0.18 + pulse * 0.08;
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.arc(cx, cy, sr + 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // 3 concentric rings
+      for (let r = 1; r <= 3; r++) {
+        ctx.save();
+        ctx.strokeStyle = def.color;
+        ctx.globalAlpha = 0.30 - (r - 1) * 0.04;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.arc(cx, cy, (sr * r) / 3, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+      }
+
+      // Dual scanning beams
+      for (const ang of [angle1, angle2]) {
+        ctx.save();
+        ctx.fillStyle = def.color;
+        ctx.globalAlpha = 0.22 + pulse * 0.05;
+        ctx.shadowColor = def.color; ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, sr, ang - 0.32, ang + 0.32);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+        // beam edge lines
+        ctx.save();
+        ctx.strokeStyle = def.color; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.shadowColor = def.color; ctx.shadowBlur = 5;
+        for (const off of [-0.32, 0.32]) {
+          ctx.beginPath(); ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + Math.cos(ang + off) * sr, cy + Math.sin(ang + off) * sr);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // CVE cross-hair at center
+      ctx.save();
+      ctx.strokeStyle = def.color; ctx.globalAlpha = 0.55 + pulse * 0.1;
+      ctx.lineWidth = 1; ctx.shadowColor = def.color; ctx.shadowBlur = 6;
+      const ch = 5;
+      ctx.beginPath(); ctx.moveTo(cx - ch, cy); ctx.lineTo(cx + ch, cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy - ch); ctx.lineTo(cx, cy + ch); ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
     // ── CAO_ELITE (cao_elite) ──────────────────────────────────────────
     // Premium counter adversary ops — enhanced glob with elite glow
     else if (defKey === 'cao_elite') {
@@ -6422,6 +6614,279 @@ html, body {
         ctx.restore();
       }
       
+      ctx.restore();
+    }
+
+    // ── SERAPHIC (seraphic) ────────────────────────────────────────
+    // Browser shield — hexagonal cage with data stream inside
+    else if (defKey === 'seraphic') {
+      ctx.save();
+      const sr = 13;
+      const sides = 6;
+      // Hexagon outline
+      ctx.save();
+      ctx.strokeStyle = def.color; ctx.globalAlpha = 0.55 + pulse * 0.1;
+      ctx.lineWidth = 1.2; ctx.shadowColor = def.color; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const a = (i / sides) * Math.PI * 2 - Math.PI / 6;
+        i === 0 ? ctx.moveTo(cx + Math.cos(a)*sr, cy + Math.sin(a)*sr) : ctx.lineTo(cx + Math.cos(a)*sr, cy + Math.sin(a)*sr);
+      }
+      ctx.closePath(); ctx.stroke();
+      ctx.restore();
+      // Spinning inner data streams
+      for (let i = 0; i < 3; i++) {
+        const a = (now * 0.0008 + i * Math.PI * 2 / 3) % (Math.PI * 2);
+        ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.3; ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(a) * (sr * 0.65), cy + Math.sin(a) * (sr * 0.65));
+        ctx.stroke(); ctx.restore();
+      }
+      // Center dot
+      ctx.save(); ctx.fillStyle = def.color; ctx.globalAlpha = 0.7;
+      ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI*2); ctx.fill(); ctx.restore();
+      ctx.restore();
+    }
+
+    // ── DATA PROTECTION (data_protect) ────────────────────────────
+    // Shield with lock — pulsing DLP barrier
+    else if (defKey === 'data_protect') {
+      ctx.save();
+      const sr = 13;
+      // Shield path
+      ctx.save(); ctx.fillStyle = def.color; ctx.globalAlpha = 0.12 + pulse * 0.04;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - sr); ctx.lineTo(cx + sr*0.8, cy - sr*0.4);
+      ctx.lineTo(cx + sr*0.8, cy + sr*0.3); ctx.lineTo(cx, cy + sr);
+      ctx.lineTo(cx - sr*0.8, cy + sr*0.3); ctx.lineTo(cx - sr*0.8, cy - sr*0.4);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.6 + pulse * 0.1;
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - sr); ctx.lineTo(cx + sr*0.8, cy - sr*0.4);
+      ctx.lineTo(cx + sr*0.8, cy + sr*0.3); ctx.lineTo(cx, cy + sr);
+      ctx.lineTo(cx - sr*0.8, cy + sr*0.3); ctx.lineTo(cx - sr*0.8, cy - sr*0.4);
+      ctx.closePath(); ctx.stroke(); ctx.restore();
+      // Lock icon center
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.8; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(cx, cy - 1.5, 3.5, Math.PI, 0); ctx.stroke();
+      ctx.strokeRect(cx - 4, cy - 1, 8, 6); ctx.restore();
+      ctx.restore();
+    }
+
+    // ── FALCON FOR MOBILE (falcon_mobile) ─────────────────────────
+    // Phone outline with signal waves
+    else if (defKey === 'falcon_mobile') {
+      ctx.save();
+      // Phone outline
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.65; ctx.lineWidth = 1.3;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 7;
+      const pw = 9, ph = 16;
+      ctx.strokeRect(cx - pw/2, cy - ph/2, pw, ph);
+      ctx.beginPath(); ctx.moveTo(cx - 3, cy + ph/2 - 4); ctx.lineTo(cx + 3, cy + ph/2 - 4); ctx.stroke();
+      ctx.restore();
+      // Signal waves (top right)
+      for (let i = 1; i <= 3; i++) {
+        ctx.save(); ctx.strokeStyle = def.color;
+        ctx.globalAlpha = (0.25 + i * 0.12) * (0.6 + pulse * 0.2);
+        ctx.lineWidth = 1; ctx.shadowColor = def.color; ctx.shadowBlur = 4;
+        ctx.beginPath(); ctx.arc(cx + pw/2 + 1, cy - ph/2 - 1, i * 3.5, -Math.PI*0.7, -Math.PI*0.1);
+        ctx.stroke(); ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // ── DEVICE CONTROL (device_ctrl) ──────────────────────────────
+    // USB plug icon with block X
+    else if (defKey === 'device_ctrl') {
+      ctx.save();
+      // USB outline
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.65; ctx.lineWidth = 1.3;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 14); ctx.lineTo(cx, cy + 4);
+      ctx.moveTo(cx - 6, cy - 10); ctx.lineTo(cx + 6, cy - 10);
+      ctx.moveTo(cx - 6, cy - 6); ctx.lineTo(cx - 6, cy - 3); ctx.lineTo(cx - 3, cy - 3);
+      ctx.moveTo(cx + 6, cy - 6); ctx.lineTo(cx + 6, cy - 1); ctx.lineTo(cx + 3, cy - 1);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy + 7, 5, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+      // Block X
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.5 + pulse * 0.15; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx - 4, cy + 3); ctx.lineTo(cx + 4, cy + 11);
+      ctx.moveTo(cx + 4, cy + 3); ctx.lineTo(cx - 4, cy + 11); ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // ── FILEVANTAGE (filevantage) ──────────────────────────────────
+    // File with integrity check pulse
+    else if (defKey === 'filevantage') {
+      ctx.save();
+      // File icon
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.65; ctx.lineWidth = 1.3;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 7;
+      ctx.beginPath();
+      ctx.moveTo(cx - 8, cy - 13); ctx.lineTo(cx + 4, cy - 13);
+      ctx.lineTo(cx + 8, cy - 9); ctx.lineTo(cx + 8, cy + 13);
+      ctx.lineTo(cx - 8, cy + 13); ctx.closePath(); ctx.stroke();
+      ctx.moveTo(cx + 4, cy - 13); ctx.lineTo(cx + 4, cy - 9); ctx.lineTo(cx + 8, cy - 9); ctx.stroke();
+      ctx.restore();
+      // Integrity lines
+      for (let i = 0; i < 3; i++) {
+        const y = cy - 4 + i * 5;
+        const w = 8 - i * 1.5;
+        ctx.save(); ctx.strokeStyle = def.color;
+        ctx.globalAlpha = (0.4 + pulse * 0.2) * (1 - i * 0.15);
+        ctx.lineWidth = 1; ctx.beginPath();
+        ctx.moveTo(cx - w, y); ctx.lineTo(cx + w, y); ctx.stroke(); ctx.restore();
+      }
+      // Check mark
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.8; ctx.lineWidth = 1.8;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.moveTo(cx - 5, cy + 8); ctx.lineTo(cx - 1, cy + 12); ctx.lineTo(cx + 7, cy + 4);
+      ctx.stroke(); ctx.restore();
+      ctx.restore();
+    }
+
+    // ── FIREWALL MANAGEMENT (firewall_mgmt) ───────────────────────
+    // Brick wall pattern with flame
+    else if (defKey === 'firewall_mgmt') {
+      ctx.save();
+      const brickColor = def.color;
+      // Bricks
+      const rows = [[[-9,-2,8],[1,-2,8]],[[-5,3,8],[4,3,6]],[[-9,8,8],[1,8,8]]];
+      for (const row of rows) {
+        for (const [bx, by, bw] of row) {
+          ctx.save(); ctx.strokeStyle = brickColor; ctx.globalAlpha = 0.45 + pulse * 0.08;
+          ctx.lineWidth = 0.9; ctx.strokeRect(cx + bx, cy + by, bw, 4); ctx.restore();
+        }
+      }
+      // Flame above wall
+      const fa = (now * 0.002) % (Math.PI * 2);
+      ctx.save(); ctx.fillStyle = brickColor; ctx.globalAlpha = 0.55 + Math.sin(fa) * 0.15;
+      ctx.shadowColor = brickColor; ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 8); ctx.quadraticCurveTo(cx + 5, cy - 14, cx, cy - 18);
+      ctx.quadraticCurveTo(cx - 6, cy - 14, cx - 3, cy - 10);
+      ctx.quadraticCurveTo(cx - 1, cy - 6, cx, cy - 8); ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.restore();
+    }
+
+    // ── FEM — Falcon Exposure Management (fem) ────────────────────
+    // Globe scan (EASM) + risk gauge (ExPRT.AI) combined in one glyph
+    else if (defKey === 'fem') {
+      ctx.save();
+      const sr = 12;
+      const scanA = (now * 0.0006) % (Math.PI * 2);
+      // Outer globe (attack surface mapping)
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.45; ctx.lineWidth = 1;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 6;
+      ctx.beginPath(); ctx.arc(cx, cy, sr, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+      // Scanning meridian
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.5 + pulse * 0.1;
+      ctx.lineWidth = 1; ctx.shadowColor = def.color; ctx.shadowBlur = 5;
+      ctx.beginPath(); ctx.moveTo(cx + Math.cos(scanA)*sr, cy + Math.sin(scanA)*sr);
+      ctx.arc(cx, cy, sr, scanA, scanA + Math.PI); ctx.stroke(); ctx.restore();
+      // Discovery blip (red — found exposure)
+      const bx = cx + Math.cos(scanA + 0.5) * sr * 0.65;
+      const by = cy + Math.sin(scanA + 0.5) * sr * 0.65;
+      ctx.save(); ctx.fillStyle = '#FC0A2A'; ctx.globalAlpha = 0.9 * (0.5 + pulse * 0.3);
+      ctx.beginPath(); ctx.arc(bx, by, 2, 0, Math.PI*2); ctx.fill(); ctx.restore();
+      // Inner ExPRT.AI risk gauge arc
+      const riskAngle = Math.PI * 0.9 + (Math.PI * 1.2) * (0.5 + Math.sin(now * 0.0008) * 0.1);
+      ctx.save(); ctx.strokeStyle = '#3E5E7A'; ctx.globalAlpha = 0.35; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(cx, cy, sr * 0.55, Math.PI * 0.9, Math.PI * 2.1); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.8; ctx.lineWidth = 2.5;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 7;
+      ctx.beginPath(); ctx.arc(cx, cy, sr * 0.55, Math.PI * 0.9, riskAngle); ctx.stroke(); ctx.restore();
+      ctx.restore();
+    }
+
+    // ── LOGSCALE (logscale) ────────────────────────────────────────
+    // Scrolling log lines with search cursor
+    else if (defKey === 'logscale') {
+      ctx.save();
+      const lineCount = 5;
+      const scroll = (now * 0.03) % 8;
+      for (let i = 0; i < lineCount; i++) {
+        const y = cy - 10 + (i * 5) + scroll;
+        if (y < cy - 13 || y > cy + 13) continue;
+        const w = [12, 9, 14, 7, 11][i % 5];
+        ctx.save(); ctx.strokeStyle = def.color;
+        ctx.globalAlpha = 0.2 + (i === 2 ? 0.35 : 0);
+        ctx.lineWidth = i === 2 ? 1.4 : 0.9;
+        ctx.beginPath(); ctx.moveTo(cx - 11, y); ctx.lineTo(cx - 11 + w, y); ctx.stroke(); ctx.restore();
+      }
+      // Search cursor (blinking)
+      if (Math.floor(now / 500) % 2 === 0) {
+        ctx.save(); ctx.fillStyle = def.color; ctx.globalAlpha = 0.8;
+        ctx.fillRect(cx + 3, cy - 2, 7, 1.5); ctx.restore();
+      }
+      // Magnifying glass
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.65; ctx.lineWidth = 1.2;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 6;
+      ctx.beginPath(); ctx.arc(cx + 6, cy + 6, 5, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 9.5, cy + 9.5); ctx.lineTo(cx + 13, cy + 13); ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // ── FALCON COMPLETE MDR (falcon_complete) ─────────────────────
+    // Shield with timer + response indicator
+    else if (defKey === 'falcon_complete') {
+      ctx.save();
+      const sr = 13;
+      // Shield
+      ctx.save(); ctx.fillStyle = def.color; ctx.globalAlpha = 0.1 + pulse * 0.04;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - sr); ctx.lineTo(cx + sr*0.85, cy - sr*0.4);
+      ctx.lineTo(cx + sr*0.85, cy + sr*0.25); ctx.lineTo(cx, cy + sr*1.05);
+      ctx.lineTo(cx - sr*0.85, cy + sr*0.25); ctx.lineTo(cx - sr*0.85, cy - sr*0.4);
+      ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.65 + pulse * 0.12;
+      ctx.lineWidth = 1.4; ctx.shadowColor = def.color; ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - sr); ctx.lineTo(cx + sr*0.85, cy - sr*0.4);
+      ctx.lineTo(cx + sr*0.85, cy + sr*0.25); ctx.lineTo(cx, cy + sr*1.05);
+      ctx.lineTo(cx - sr*0.85, cy + sr*0.25); ctx.lineTo(cx - sr*0.85, cy - sr*0.4);
+      ctx.closePath(); ctx.stroke(); ctx.restore();
+      // Clock face inside
+      const cAngle = (now * 0.002) % (Math.PI * 2);
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.7; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(cAngle)*4, cy + Math.sin(cAngle)*4); ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // ── INSIGHT XDR (insight_xdr) ─────────────────────────────────
+    // Multi-domain convergence rings
+    else if (defKey === 'insight_xdr') {
+      ctx.save();
+      const domains = 4;
+      for (let i = 0; i < domains; i++) {
+        const a = (i / domains) * Math.PI * 2 + now * 0.0004;
+        const dx = cx + Math.cos(a) * 8;
+        const dy = cy + Math.sin(a) * 8;
+        ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.4 + pulse * 0.08;
+        ctx.lineWidth = 0.9; ctx.shadowColor = def.color; ctx.shadowBlur = 5;
+        ctx.beginPath(); ctx.arc(dx, dy, 4.5, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+        // Connecting line to center
+        ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.2; ctx.lineWidth = 0.7;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(dx, dy); ctx.stroke(); ctx.restore();
+      }
+      // Central XDR core
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = 0.7 + pulse * 0.15;
+      ctx.lineWidth = 1.4; ctx.shadowColor = def.color; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+      // Pulsing convergence wave
+      const waveR = 6 + (now * 0.04 % 10);
+      ctx.save(); ctx.strokeStyle = def.color; ctx.globalAlpha = Math.max(0, 0.5 - waveR * 0.04);
+      ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(cx, cy, waveR, 0, Math.PI*2); ctx.stroke(); ctx.restore();
       ctx.restore();
     }
 
