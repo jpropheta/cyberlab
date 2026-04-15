@@ -1476,10 +1476,10 @@ html, body {
     ] },
     net_sensor: { cat: 1, kind: 'source',     title: 'FALCON DISCOVER',    sub: 'IT Hygiene & Network Visibility', glyph: '≋', color: PAL.amber, cost: 160,  szW: 1.05, szH: 0.82, inputs: [], outputs: [{dt:'network'}] },
     // ── CORE PLATFORM ───────────────────────────────────────────────────────────────────────────────────────
-    // ngsiem inputs: identity/endpoint/network/cloud (raw sensors) + threat_intel (from Intel/OverWatch).
-    // Removed 'agent' (SOAR output goes to case_q / forward, not back into SIEM) and
-    // 'correlated' (SIEM produces correlated — consuming it would create a self-loop).
-    ngsiem:     { cat: 2, kind: 'correlator', title: 'FALCON NG-SIEM',     sub: 'Powered by Humio',            glyph: '◈', color: PAL.green,   cost: 420,  szW: 1.10, szH: 1.35, inputs: [{dt:'identity'},{dt:'endpoint'},{dt:'network'},{dt:'cloud'},{dt:'threat_intel'}], outputs: [{dt:'correlated'}], upgrades: [
+    // ngsiem inputs: identity/endpoint/network/cloud (raw sensors) + threat_intel (from Intel/OverWatch)
+    // + agent (agentic enrichment loop — Charlotte AI / IDTM directives fed back for re-correlation).
+    // 'correlated' still excluded (SIEM produces correlated — consuming it would create a self-loop).
+    ngsiem:     { cat: 2, kind: 'correlator', title: 'FALCON NG-SIEM',     sub: 'Powered by Humio',            glyph: '◈', color: PAL.green,   cost: 420,  szW: 1.10, szH: 1.35, inputs: [{dt:'identity'},{dt:'endpoint'},{dt:'network'},{dt:'cloud'},{dt:'threat_intel'},{dt:'agent'}], outputs: [{dt:'correlated'}], upgrades: [
       { id:'siem_storage', tier: 1, label:'STORAGE+', cost: 350, incomeBonus: 0.5,
         desc:'Extended retention and storage. 90-day lookback window. Historical correlation amplified.' },
       { id:'siem_complete', tier: 2, label:'SIEM COMPLETE', cost: 750, incomeBonus: 1.1,
@@ -1491,8 +1491,9 @@ html, body {
     // ── AUTOMATION ──────────────────────────────────────────────────────────────────────────────────────────
     // Fusion is a platform-wide SOAR hub — accepts telemetry from ANY source directly
     // (sensors, SIEM, intel) and outputs threat_intel back into the platform + agent actions.
-    // szH raised to 1.55 to accommodate 6 inputs + 2 outputs.
-    fusion:     { cat: 3, kind: 'automation', title: 'FALCON FUSION',      sub: 'CrowdStrike SOAR',            glyph: '⬢', color: PAL.magenta, cost: 560,  szW: 1.15, szH: 1.55, inputs: [{dt:'identity'},{dt:'endpoint'},{dt:'network'},{dt:'cloud'},{dt:'correlated'},{dt:'threat_intel'}], outputs: [{dt:'threat_intel'},{dt:'agent'}] },
+    // agent input added: Charlotte AI / IDTM directives trigger new SOAR playbooks.
+    // szH raised to 1.65 to accommodate 7 inputs + 2 outputs.
+    fusion:     { cat: 3, kind: 'automation', title: 'FALCON FUSION',      sub: 'CrowdStrike SOAR',            glyph: '⬢', color: PAL.magenta, cost: 560,  szW: 1.15, szH: 1.65, inputs: [{dt:'identity'},{dt:'endpoint'},{dt:'network'},{dt:'cloud'},{dt:'correlated'},{dt:'threat_intel'},{dt:'agent'}], outputs: [{dt:'threat_intel'},{dt:'agent'}] },
     sandbox:    { cat: 3, kind: 'enrich',     title: 'FALCON SANDBOX',     sub: 'CrowdStrike MalQuery',        glyph: '⎔', color: PAL.red,     cost: 380,  szW: 1.25, szH: 1.05, inputs: [{dt:'endpoint'}], outputs: [{dt:'threat_intel'},{dt:'correlated'}], upgrades: [
       { id:'sandbox_premium', tier: 1, label:'SANDBOX PREMIUM', cost: 450, incomeBonus: 0.75,
         desc:'Unlimited detonations, faster analysis. Every binary verdict in under 30 seconds.' }
@@ -2783,7 +2784,22 @@ html, body {
     const zoom = MSG_ZOOM[_msgFontScale + 1] || 1;
     MSG_PANEL_IDS.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.zoom = zoom;
+      if (!el) return;
+      el.style.zoom = zoom;
+      // Re-clamp positioned panels so they don't overflow after zoom
+      if (el.style.position === 'absolute' || el.style.left) {
+        requestAnimationFrame(() => {
+          const r = el.getBoundingClientRect();
+          const maxL = window.innerWidth - r.width - 6;
+          const maxT = window.innerHeight - r.height - 6;
+          const curL = parseFloat(el.style.left) || 0;
+          const curT = parseFloat(el.style.top)  || 0;
+          if (curL > maxL) el.style.left = Math.max(6, maxL) + 'px';
+          if (curT > maxT) el.style.top  = Math.max(6, maxT) + 'px';
+          if (r.right  > window.innerWidth  - 6) el.style.left = Math.max(6, window.innerWidth  - r.width  - 6) + 'px';
+          if (r.bottom > window.innerHeight - 6) el.style.top  = Math.max(6, window.innerHeight - r.height - 6) + 'px';
+        });
+      }
     });
   }
 
@@ -4141,7 +4157,9 @@ html, body {
     if (!el) { return; }
     const rect   = canvas.getBoundingClientRect();
     const panelW = 338;
-    const panelH = Math.min(520, window.innerHeight - 100);
+    const zoom   = MSG_ZOOM[_msgFontScale + 1] || 1;
+    // Divide by zoom so CSS zoom doesn't push the rendered panel taller than the viewport
+    const panelH = Math.min(520, Math.floor((window.innerHeight - 100) / zoom));
     const DECK_W = 272; // SOC deck width (right panel)
 
     // Always dock the triage panel in the top-right of the canvas area,
@@ -4149,7 +4167,7 @@ html, body {
     // never chases modules around the world — which breaks on camera pan.
     const px = Math.max(
       rect.left + 8,
-      window.innerWidth - DECK_W - panelW - 10
+      window.innerWidth - DECK_W - Math.round(panelW * zoom) - 10
     );
     const py = rect.top + 52; // just below the HUD strip
 
