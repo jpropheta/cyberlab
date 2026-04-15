@@ -3953,9 +3953,17 @@ html, body {
     // NOISE cases (wrong-wire false positives): only DISMISS makes sense.
     // Real cases: use the curated ctx.actions list for this specific rule type.
     // Never dump all actions — each case type has 2-4 contextually relevant choices.
-    const actionKeys = (!c.ruleKey || c.diff === 'NOISE')
+    const rawKeys = (!c.ruleKey || c.diff === 'NOISE')
       ? ['dismiss']
       : (ctx.actions || ['isolate_host', 'escalate', 'dismiss']);
+    // Shuffle non-dismiss actions so the correct answer is never predictably first.
+    // Dismiss always stays last — it's a deliberate "I'm sure this is benign" choice.
+    const nonDismiss = rawKeys.filter(k => k !== 'dismiss');
+    for (let i = nonDismiss.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nonDismiss[i], nonDismiss[j]] = [nonDismiss[j], nonDismiss[i]];
+    }
+    const actionKeys = rawKeys.includes('dismiss') ? [...nonDismiss, 'dismiss'] : nonDismiss;
     html += `<div class="actions-hdr">RESPONSE ACTION</div>`;
     actionKeys.forEach(aKey => {
       const a = ACTIONS[aKey];
