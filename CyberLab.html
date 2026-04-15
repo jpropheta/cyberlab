@@ -114,85 +114,137 @@ html, body {
 
 /* ---- LEFT SHOP PALETTE (180px) ---- */
 #cl-palette {
-  position: absolute; left: 0; top: 48px; bottom: 28px; width: 180px;
-  background: linear-gradient(180deg, rgba(9,14,26,0.95), rgba(7,11,22,0.92));
+  position: absolute; left: 0; top: 48px; bottom: 28px; width: 192px;
+  background: linear-gradient(180deg, rgba(9,14,26,0.97), rgba(7,11,22,0.95));
   border-right: 1px solid rgba(0,229,255,0.22);
   overflow-y: auto; overflow-x: hidden;
   z-index: 18;
-  padding: 10px 8px; box-sizing: border-box;
+  padding: 0 8px 10px; box-sizing: border-box;
 }
+#cl-canvas { left: 192px; }
 #cl-palette::-webkit-scrollbar { width: 6px; }
 #cl-palette::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.25); border-radius: 3px; }
 #cl-palette::-webkit-scrollbar-track { background: transparent; }
 
+/* ── Palette header: budget + font-size controls ── */
+.cl-pal-header {
+  position: sticky; top: 0; z-index: 2;
+  background: rgba(9,14,26,0.98);
+  border-bottom: 1px solid rgba(0,229,255,0.14);
+  padding: 8px 4px 7px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.cl-pal-budget-lbl { font-size: 8px; letter-spacing: 1.8px; color: #3E6285; }
+.cl-pal-avail { color: #00E676; font-weight: 700; font-size: 11px; letter-spacing: 1px; }
+.cl-pal-font-btns { display: flex; gap: 3px; }
+.cl-pal-font-btn {
+  width: 20px; height: 20px; border-radius: 3px;
+  background: rgba(0,229,255,0.07); border: 1px solid rgba(0,229,255,0.22);
+  color: #5E82A3; font-size: 10px; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s; user-select: none; letter-spacing: 0;
+}
+.cl-pal-font-btn:hover { background: rgba(0,229,255,0.18); color: #00E5FF; border-color: rgba(0,229,255,0.5); }
+
 .cl-tier-hdr {
-  font-size: 9px; letter-spacing: 2.5px;
-  color: #5E82A3; margin: 14px 4px 8px 4px;
+  font-size: 8px; letter-spacing: 2.5px;
+  color: #5E82A3; margin: 12px 2px 6px 2px;
   padding-bottom: 4px; border-bottom: 1px solid rgba(0,229,255,0.1);
   display: flex; justify-content: space-between; align-items: center;
 }
 .cl-tier-hdr .tag {
-  padding: 2px 6px; border-radius: 2px;
-  font-size: 8px; letter-spacing: 1.5px;
-}
-/* Budget bar at top of palette */
-.cl-pal-budget {
-  font-size: 9px; letter-spacing: 2px; color: #5E82A3;
-  padding: 6px 4px 10px 4px;
-  border-bottom: 1px solid rgba(0,229,255,0.12);
-  margin-bottom: 4px;
-}
-.cl-pal-budget .cl-pal-avail {
-  color: #00E676; font-weight: 700; letter-spacing: 1px;
+  padding: 2px 5px; border-radius: 2px;
+  font-size: 7px; letter-spacing: 1.5px;
 }
 
+/* ── Palette card — full redesign ── */
 .cl-pal-card {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 8px;
-  margin-bottom: 6px;
-  background: rgba(14,22,40,0.85);
-  border: 1px solid rgba(0,229,255,0.22);
+  display: flex; flex-direction: column;
+  padding: 8px 9px 7px;
+  margin-bottom: 7px;
+  background: rgba(12,19,36,0.90);
+  border: 1px solid rgba(0,229,255,0.18);
   border-left-width: 3px;
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: grab;
   transition: all 0.15s;
   position: relative;
 }
 .cl-pal-card:hover {
-  background: rgba(20,32,55,0.95);
-  box-shadow: 0 0 12px rgba(0,229,255,0.18);
+  background: rgba(18,28,52,0.97);
+  box-shadow: 0 0 14px rgba(0,229,255,0.16), inset 0 0 0 1px rgba(0,229,255,0.12);
   transform: translateX(2px);
 }
-/* Can't afford — still visible, price shown in red, no grab cursor */
 .cl-pal-card.cant-afford {
-  opacity: 0.55; cursor: not-allowed; filter: saturate(0.4);
+  opacity: 0.52; cursor: not-allowed; filter: saturate(0.35);
 }
-.cl-pal-card.cant-afford:hover { transform: none; box-shadow: none; filter: saturate(0.6); opacity: 0.70; }
+.cl-pal-card.cant-afford:hover { transform: none; box-shadow: none; filter: saturate(0.55); opacity: 0.68; }
+.cl-pal-card.dragging { opacity: 0.35; }
+
+/* Card top row: glyph + title + kind badge */
+.cl-pal-card .card-top {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 3px;
+}
 .cl-pal-card .glyph {
-  flex: 0 0 28px; height: 28px; display: flex;
+  flex: 0 0 22px; height: 22px; display: flex;
   align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700;
+  font-size: var(--pal-glyph-size, 15px); font-weight: 700;
 }
-.cl-pal-card .body { flex: 1; min-width: 0; }
+.cl-pal-card .card-titles { flex: 1; min-width: 0; }
 .cl-pal-card .title {
-  font-size: 10px; color: #E6F0FF; font-weight: 700;
-  letter-spacing: 0.8px;
+  font-size: var(--pal-title-size, 9.5px); color: #E6F0FF; font-weight: 700;
+  letter-spacing: 0.6px; line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cl-pal-card .sub-line {
-  font-size: 8px; color: #3E6285; letter-spacing: 0.8px;
-  margin-top: 1px;
+  font-size: var(--pal-sub-size, 7.5px); color: #3E5E7A; letter-spacing: 0.6px;
+  margin-top: 1px; line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
+/* Kind badge */
+.cl-pal-kind {
+  font-size: 6.5px; letter-spacing: 1.2px; padding: 2px 4px;
+  border-radius: 2px; font-weight: 700; white-space: nowrap;
+  border: 1px solid; opacity: 0.85;
+}
+
+/* Cost row */
+.cl-pal-card .cost-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px; margin-bottom: 5px;
+}
 .cl-pal-card .cost {
-  font-size: 9px; color: #00E676; letter-spacing: 1px;
-  font-weight: 700; margin-top: 3px;
+  font-size: var(--pal-cost-size, 9px); color: #00E676; letter-spacing: 1px; font-weight: 700;
 }
 .cl-pal-card .cost.cost-locked { color: #FF6B35; }
 .cl-pal-card .cost .need {
-  font-size: 8px; color: #FF6B35; font-weight: 400; letter-spacing: 0.5px;
+  font-size: var(--pal-sub-size, 7.5px); color: #FF6B35; font-weight: 400; letter-spacing: 0.5px;
 }
-.cl-pal-card.dragging { opacity: 0.4; }
+
+/* Port rows */
+.cl-pal-ports {
+  border-top: 1px solid rgba(0,229,255,0.08);
+  padding-top: 5px; margin-top: 2px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.cl-pal-port-row {
+  display: flex; align-items: center; gap: 3px; flex-wrap: wrap;
+}
+.cl-pal-port-lbl {
+  font-size: 6.5px; letter-spacing: 1.5px; color: #2E4E6A;
+  margin-right: 1px; flex-shrink: 0;
+}
+.cl-pal-port-chip {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 1px 5px 1px 3px; border-radius: 2px;
+  font-size: var(--pal-chip-size, 7px); letter-spacing: 1px; font-weight: 700;
+  border: 1px solid; opacity: 0.9;
+}
+.cl-pal-port-chip .dot {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
 
 /* ---- BOTTOM RAIL ---- */
 #cl-rail {
@@ -549,6 +601,52 @@ html, body {
 .cov-score-val.ok   { color: #FFB300; text-shadow: 0 0 14px rgba(255,179,0,0.4); }
 .cov-score-val.bad  { color: #FC0A2A; text-shadow: 0 0 14px rgba(252,10,42,0.4); }
 .cov-score-label { font-size: 8px; letter-spacing: 2px; color: #5E82A3; margin-top: 2px; }
+
+/* ── Shared A-/A+ font size buttons (used in triage, SOC deck, sitrep) ── */
+.ui-font-btns {
+  display: inline-flex; gap: 2px; flex-shrink: 0;
+}
+.ui-font-btn {
+  width: 18px; height: 18px; border-radius: 2px;
+  background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.18);
+  color: #3E6285; font-size: 9px; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s; user-select: none; letter-spacing: 0; line-height: 1;
+}
+.ui-font-btn:hover { background: rgba(0,229,255,0.16); color: #00E5FF; border-color: rgba(0,229,255,0.45); }
+
+/* ── Connector dot tooltip ── */
+#cl-dot-tip {
+  position: fixed; z-index: 80; pointer-events: none;
+  padding: 7px 10px 8px;
+  background: linear-gradient(135deg, rgba(8,14,28,0.98), rgba(5,10,22,0.99));
+  border-radius: 4px;
+  border: 1px solid var(--tip-color, #00E5FF);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.55), 0 0 12px var(--tip-glow, rgba(0,229,255,0.15));
+  min-width: 140px; max-width: 200px;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.12s, transform 0.12s;
+}
+#cl-dot-tip.show { opacity: 1; transform: translateY(0); }
+#cl-dot-tip .tip-dir {
+  font-size: 7px; letter-spacing: 2px; font-weight: 700;
+  padding: 1px 5px; border-radius: 2px; margin-bottom: 5px;
+  display: inline-block;
+  background: var(--tip-bg, rgba(0,229,255,0.12));
+  color: var(--tip-color, #00E5FF);
+  border: 1px solid var(--tip-color, #00E5FF);
+}
+#cl-dot-tip .tip-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--tip-color, #00E5FF); margin-bottom: 2px;
+}
+#cl-dot-tip .tip-full {
+  font-size: 8.5px; color: #8EC8DC; letter-spacing: 0.8px; margin-bottom: 4px;
+}
+#cl-dot-tip .tip-desc {
+  font-size: 8px; color: #5E82A3; letter-spacing: 0.5px; line-height: 1.5;
+  border-top: 1px solid rgba(0,229,255,0.1); padding-top: 4px; margin-top: 3px;
+}
 
 .cov-row {
   display: flex; align-items: flex-start; gap: 8px;
@@ -1142,6 +1240,9 @@ html, body {
   <!-- SCANLINES -->
   <div id="cl-scanlines"></div>
 
+  <!-- CONNECTOR DOT TOOLTIP -->
+  <div id="cl-dot-tip"></div>
+
   <!-- TUTORIAL OVERLAY -->
   <div id="cl-tutorial">
     <button id="cl-tut-skip" onclick="CyberLab._skipTutorial()">SKIP TUTORIAL</button>
@@ -1195,6 +1296,10 @@ html, body {
     <div class="sr-phase-row">
       <span class="sr-phase-badge" id="cl-sr-phase">ACT I</span>
       <span class="sr-outcome-badge contained" id="cl-sr-outcome">CONTAINED</span>
+      <div class="ui-font-btns" style="margin-left:auto">
+        <button class="ui-font-btn" onclick="CyberLab._msgFontDown()">A−</button>
+        <button class="ui-font-btn" onclick="CyberLab._msgFontUp()">A+</button>
+      </div>
     </div>
     <h2>SITUATION REPORT</h2>
     <div class="sr-adversary" id="cl-sr-adversary">SCATTERED SPIDER</div>
@@ -1210,13 +1315,19 @@ html, body {
     </div>
     <div class="sr-btns">
       <button class="cl-btn" id="cl-sr-continue" onclick="CyberLab._advanceAct()">▶ CONTINUE MISSION</button>
-      <button class="cl-btn secondary" id="cl-sr-prestige" onclick="CyberLab._skipScore()">◈ PRESTIGE RESET</button>
+      <button class="cl-btn secondary" id="cl-sr-prestige" onclick="CyberLab._skipScore()">◈ SKIP · NEXT CYCLE</button>
     </div>
   </div>
 
   <!-- PORTAL PANEL — prestige reset / score submit -->
   <div id="cl-portal-panel">
-    <h2 id="cl-pp-title">CYCLE COMPLETE</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+      <h2 id="cl-pp-title" style="margin:0">CYCLE COMPLETE</h2>
+      <div class="ui-font-btns">
+        <button class="ui-font-btn" onclick="CyberLab._msgFontDown()">A−</button>
+        <button class="ui-font-btn" onclick="CyberLab._msgFontUp()">A+</button>
+      </div>
+    </div>
     <div class="pp-sub" id="cl-pp-sub">SCATTERED SPIDER · CONTAINED</div>
     <div class="pp-stats" id="cl-pp-stats"></div>
     <div class="pp-form">
@@ -1243,6 +1354,10 @@ html, body {
       <div class="sd-cell"><div class="k">TRUST</div><div class="v" id="sdd-trust">100</div></div>
       <div class="sd-cell"><div class="k">COVERAGE</div><div class="v" id="sdd-cov">0%</div></div>
       <div class="sd-cell"><div class="k">BUDGET</div><div class="v" id="sdd-budget">$0</div></div>
+      <div class="ui-font-btns" style="flex-shrink:0;margin-left:4px">
+        <button class="ui-font-btn" onclick="CyberLab._msgFontDown()">A−</button>
+        <button class="ui-font-btn" onclick="CyberLab._msgFontUp()">A+</button>
+      </div>
     </div>
     <!-- Tabs -->
     <div class="soc-tabs">
@@ -1323,14 +1438,14 @@ html, body {
   // data-type → color
   const DATATYPE = {
     // shape: 'circle'|'square'|'diamond'|'triangle'|'triangle_dn'|'hexagon'|'cross'|'pentagon'
-    identity:     { c: '#00E5FF', label: 'AUTH', shape: 'circle'      }, // identity = clean circle, trust boundary
-    endpoint:     { c: '#FC0A2A', label: 'PROC', shape: 'pentagon'    }, // endpoint = irregular, process-like
-    network:      { c: '#FFB300', label: 'NET ', shape: 'diamond'     }, // network = routing diamond
-    correlated:   { c: '#00E676', label: 'CORR', shape: 'square'      }, // correlated = structured, boxed insight
-    agent:        { c: '#C77DFF', label: 'AGNT', shape: 'cross'       }, // agent action = directive cross/plus
-    cloud:        { c: '#2DD4BF', label: 'CLD ', shape: 'hexagon'     }, // cloud = honeycomb/infra hex
-    intel:        { c: '#F5A623', label: 'INTL', shape: 'triangle'    }, // intel = sharp upward insight
-    threat_intel: { c: '#FF9F43', label: 'THRT', shape: 'triangle_dn' }  // threat = warning/danger down-triangle
+    identity:     { c: '#00E5FF', label: 'AUTH', shape: 'circle',      full: 'IDENTITY',     desc: 'User sessions, MFA events, SSO tokens, credential resets, helpdesk activity' },
+    endpoint:     { c: '#FC0A2A', label: 'PROC', shape: 'pentagon',    full: 'ENDPOINT',     desc: 'Process execution, memory events, AMSI intercepts, kernel & registry activity' },
+    network:      { c: '#FFB300', label: 'NET',  shape: 'diamond',     full: 'NETWORK',      desc: 'DNS queries, C2 beaconing, lateral movement flows, firewall & proxy events' },
+    correlated:   { c: '#00E676', label: 'CORR', shape: 'square',      full: 'CORRELATED',   desc: 'NG-SIEM enriched detections — cross-telemetry attack chains ready for triage' },
+    agent:        { c: '#C77DFF', label: 'AGNT', shape: 'cross',       full: 'AGENT ACTION', desc: 'AI/automation directives — orchestration signals and automated response actions' },
+    cloud:        { c: '#2DD4BF', label: 'CLD',  shape: 'hexagon',     full: 'CLOUD',        desc: 'Cloud API calls, container events, S3 access, SaaS telemetry, CSPM findings' },
+    intel:        { c: '#F5A623', label: 'INTL', shape: 'triangle',    full: 'INTEL',        desc: 'Processed adversary intelligence — actor profiles, TTPs, campaign attribution' },
+    threat_intel: { c: '#FF9F43', label: 'THRT', shape: 'triangle_dn', full: 'THREAT INTEL', desc: 'Raw IOCs, indicator feeds, actor attribution signals and threat enrichment data' },
   };
 
   // =========================================================
@@ -2657,10 +2772,81 @@ html, body {
   // =========================================================
   //                      PALETTE UI
   // =========================================================
+
+  // Font-size scale: 0=default, 1=large, 2=xl, -1=small
+  // ── Global message panel font scale (shared by triage, SOC deck, sitrep) ──
+  let _msgFontScale = 0;
+  const MSG_ZOOM = [0.85, 1, 1.18, 1.38]; // indexed by _msgFontScale + 1
+  const MSG_PANEL_IDS = ['cl-triage','cl-soc-deck','cl-sitrep','cl-upgrade-panel','cl-needs-panel','cl-portal-panel'];
+
+  function applyMsgFontScale() {
+    const zoom = MSG_ZOOM[_msgFontScale + 1] || 1;
+    MSG_PANEL_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.zoom = zoom;
+    });
+  }
+
+  let _palFontScale = 0;
+  const PAL_SCALES = [
+    // [glyph, title, sub, cost, chip]
+    ['13px', '9px',   '7px',  '8.5px', '6.5px'], // -1 small
+    ['15px', '9.5px', '7.5px','9px',   '7px'  ], //  0 default
+    ['17px', '11px',  '9px',  '10.5px','8px'  ], //  1 large
+    ['19px', '13px',  '10.5px','12px', '9.5px'], //  2 xl
+  ];
+
+  function applyPalFontScale() {
+    const s = PAL_SCALES[_palFontScale + 1] || PAL_SCALES[1];
+    const el = document.getElementById('cl-palette');
+    if (!el) return;
+    el.style.setProperty('--pal-glyph-size', s[0]);
+    el.style.setProperty('--pal-title-size', s[1]);
+    el.style.setProperty('--pal-sub-size',   s[2]);
+    el.style.setProperty('--pal-cost-size',  s[3]);
+    el.style.setProperty('--pal-chip-size',  s[4]);
+  }
+
+  // Kind → display label + color
+  const KIND_BADGE = {
+    source:     { label: 'SOURCE',  color: '#00E5FF' },
+    correlator: { label: 'SIEM',    color: '#00E676' },
+    automation: { label: 'AUTO',    color: '#C77DFF' },
+    enrich:     { label: 'ENRICH',  color: '#FC0A2A' },
+    intel:      { label: 'INTEL',   color: '#F5A623' },
+    sink:       { label: 'CONSOLE', color: '#00E5FF' },
+    agent:      { label: 'AI',      color: '#C77DFF' },
+    portal:     { label: 'PORTAL',  color: '#C77DFF' },
+  };
+
+  // Build colored port chips HTML for a list of {dt} entries
+  function portChips(ports) {
+    if (!ports || !ports.length) return '<span style="font-size:6.5px;color:#2E4055;letter-spacing:1px">NONE</span>';
+    return ports.map(p => {
+      const dt = DATATYPE[p.dt] || { c: '#5E82A3', label: p.dt.toUpperCase().slice(0,4) };
+      const bg = dt.c + '18';
+      const border = dt.c + '55';
+      return `<span class="cl-pal-port-chip" style="background:${bg};border-color:${border};color:${dt.c}">` +
+             `<span class="dot" style="background:${dt.c}"></span>${dt.label.trim()}</span>`;
+    }).join('');
+  }
+
   function buildPalette() {
     const el = $('cl-palette'); if (!el) return;
     const avail = G ? Math.max(0, G.budget.pool - G.budget.spent) : 0;
-    let html = `<div class="cl-pal-budget">BUDGET  <span class="cl-pal-avail">$${avail.toLocaleString()}</span></div>`;
+
+    // Sticky header with budget + A-/A+ controls
+    let html = `<div class="cl-pal-header">
+      <div>
+        <div class="cl-pal-budget-lbl">BUDGET</div>
+        <div class="cl-pal-avail">$${avail.toLocaleString()}</div>
+      </div>
+      <div class="cl-pal-font-btns">
+        <button class="cl-pal-font-btn" onclick="CyberLab._palFontDown()" title="Decrease text size">A−</button>
+        <button class="cl-pal-font-btn" onclick="CyberLab._palFontUp()" title="Increase text size">A+</button>
+      </div>
+    </div>`;
+
     for (let cat = 1; cat <= 6; cat++) {
       const catName = CAT_META[cat];
       const cards = Object.entries(MODULE_DEFS).filter(([,d]) => d.cat === cat && d.kind !== 'portal');
@@ -2669,26 +2855,46 @@ html, body {
       for (const [key, d] of cards) {
         const canAfford = avail >= d.cost;
         const needMore  = d.cost - avail;
+        const kb = KIND_BADGE[d.kind] || { label: d.kind.toUpperCase(), color: '#5E82A3' };
+        const hasIn  = d.inputs  && d.inputs.length > 0;
+        const hasOut = d.outputs && d.outputs.length > 0;
+
         html += `<div class="cl-pal-card ${canAfford?'':'cant-afford'}" data-key="${key}" style="border-left-color:${d.color}">
-          <div class="glyph" style="color:${d.color};text-shadow:0 0 8px ${d.color}">${d.glyph}</div>
-          <div class="body">
-            <div class="title">${d.title}</div>
-            <div class="sub-line">${d.sub}</div>
-            <div class="cost ${canAfford?'':'cost-locked'}">$${d.cost.toLocaleString()}${canAfford?'':' <span class="need">need $'+needMore.toLocaleString()+' more</span>'}</div>
+          <div class="card-top">
+            <div class="glyph" style="color:${d.color};text-shadow:0 0 10px ${d.color}88">${d.glyph}</div>
+            <div class="card-titles">
+              <div class="title">${d.title}</div>
+              <div class="sub-line">${d.sub}</div>
+            </div>
+          </div>
+          <div class="cost-row">
+            <div class="cost ${canAfford?'':'cost-locked'}">$${d.cost.toLocaleString()}${canAfford?'':' <span class="need">−$'+needMore.toLocaleString()+'</span>'}</div>
+            <span class="cl-pal-kind" style="color:${kb.color};border-color:${kb.color}44;background:${kb.color}12">${kb.label}</span>
+          </div>
+          <div class="cl-pal-ports">
+            <div class="cl-pal-port-row">
+              <span class="cl-pal-port-lbl">IN</span>
+              ${hasIn ? portChips(d.inputs) : '<span style="font-size:6.5px;color:#2E4055;letter-spacing:1px">—</span>'}
+            </div>
+            <div class="cl-pal-port-row">
+              <span class="cl-pal-port-lbl">OUT</span>
+              ${hasOut ? portChips(d.outputs) : '<span style="font-size:6.5px;color:#2E4055;letter-spacing:1px">—</span>'}
+            </div>
           </div>
         </div>`;
       }
     }
     el.innerHTML = html;
+    applyPalFontScale();
+
     el.querySelectorAll('.cl-pal-card').forEach(card => {
       card.addEventListener('mousedown', (ev) => {
         if (card.classList.contains('cant-afford')) {
-          // Show a quick floater so the player knows why they can't buy yet
           const key = card.getAttribute('data-key');
           const d = MODULE_DEFS[key];
           if (d && G) {
             const need = d.cost - Math.max(0, G.budget.pool - G.budget.spent);
-            pushFloater(W * 0.5, H * 0.5 - 30, 'NEED $' + need.toLocaleString() + ' MORE TO BUY ' + d.title, 'warn');
+            pushFloater(W * 0.5, H * 0.5 - 30, 'NEED $' + need.toLocaleString() + ' MORE · ' + d.title, 'warn');
           }
           return;
         }
@@ -2743,9 +2949,14 @@ html, body {
       }
     }
 
+    // ── Connector dot tooltip ─────────────────────────────────────────────
+    updateDotTooltip(G.hoverDot, ev.clientX, ev.clientY);
+
     if (G.state === STATE.ATTRACT && !G.attractScript) return;
     G.lastIdleT = performance.now();
   });
+
+  canvas.addEventListener('mouseleave', () => hideDotTooltip());
 
   document.addEventListener('mousemove', (ev) => {
     const r = canvas.getBoundingClientRect();
@@ -2788,6 +2999,7 @@ html, body {
     G.lastIdleT = performance.now();
 
     if (G.state === STATE.ATTRACT) { exitAttract(); return; }
+    hideDotTooltip(); // hide on click so it doesn't linger while dragging
     if (G.state !== STATE.PLAYING) return;
 
     // dot click → start cable drag
@@ -3169,7 +3381,10 @@ html, body {
     const tierColor = TIER_COLORS[m.tier] || '#FFD700';
     const tierName  = m.tier === 0 ? 'BASE' : (def.upgrades[m.tier-1]?.label || `TIER ${m.tier}`);
     let html = `<span class="up-close" onclick="CyberLab._closeUpgradePanel()">×</span>`;
-    html += `<div class="up-header">MODULE MANAGEMENT</div>`;
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">`;
+    html += `<div class="up-header" style="margin-bottom:0">MODULE MANAGEMENT</div>`;
+    html += `<div class="ui-font-btns"><button class="ui-font-btn" onclick="CyberLab._msgFontDown()">A−</button><button class="ui-font-btn" onclick="CyberLab._msgFontUp()">A+</button></div>`;
+    html += `</div>`;
     html += `<div class="up-title">${def.title}</div>`;
     html += `<span class="up-tier" style="background:${hexToRgba(tierColor,0.15)};border:1px solid ${hexToRgba(tierColor,0.4)};color:${tierColor}">${tierName}</span>`;
     
@@ -3263,6 +3478,54 @@ html, body {
 
     if (typeof tutorialOnWire === 'function') { try { tutorialOnWire(e); } catch (err) {} }
     return e;
+  }
+
+  // ── Connector dot tooltip ─────────────────────────────────────────────────
+  let _dotTipVisible = false;
+  function updateDotTooltip(dot, mx, my) {
+    const el = document.getElementById('cl-dot-tip');
+    if (!el) return;
+    if (!dot) {
+      if (_dotTipVisible) { el.classList.remove('show'); _dotTipVisible = false; }
+      return;
+    }
+    const dt   = DATATYPE[dot.dt] || { c: '#5E82A3', label: dot.dt, full: dot.dt, desc: '' };
+    const dir  = dot.side === 'in' ? 'INPUT' : 'OUTPUT';
+    const glow = dt.c + '22';
+
+    el.style.setProperty('--tip-color', dt.c);
+    el.style.setProperty('--tip-glow',  `rgba(${hexToRgb(dt.c)},0.18)`);
+    el.style.setProperty('--tip-bg',    `rgba(${hexToRgb(dt.c)},0.10)`);
+    el.innerHTML =
+      `<div class="tip-dir">${dir}</div>` +
+      `<div class="tip-label">${dt.label.trim()}</div>` +
+      `<div class="tip-full">${dt.full || ''}</div>` +
+      `<div class="tip-desc">${dt.desc || ''}</div>`;
+
+    // Position: offset from cursor so it doesn't obscure the dot
+    const tipW = 200, tipH = 100;
+    let tx = mx + 14;
+    let ty = my - 10;
+    if (tx + tipW > window.innerWidth - 10)  tx = mx - tipW - 10;
+    if (ty + tipH > window.innerHeight - 10) ty = window.innerHeight - tipH - 10;
+    el.style.left = tx + 'px';
+    el.style.top  = ty + 'px';
+    el.classList.add('show');
+    _dotTipVisible = true;
+  }
+
+  // Also hide when mouse leaves the canvas
+  function hideDotTooltip() {
+    const el = document.getElementById('cl-dot-tip');
+    if (el) el.classList.remove('show');
+    _dotTipVisible = false;
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `${r},${g},${b}`;
   }
 
   function edgeHitTest(e, x, y) {
@@ -3908,6 +4171,10 @@ html, body {
     html += `<span class="case-icon">${caseIcon}</span>`;
     html += `<span style="font-size:8px;color:${diffCol};letter-spacing:1.5px">${c.diff || 'OBVIOUS'}</span>`;
     html += `<span style="color:#3A5C78;font-size:8px;letter-spacing:1px">CASE #${c.id}</span>`;
+    html += `<span style="margin-left:auto;display:inline-flex;gap:2px;align-items:center">`;
+    html += `<button class="ui-font-btn" onclick="CyberLab._msgFontDown()" title="Smaller text">A−</button>`;
+    html += `<button class="ui-font-btn" onclick="CyberLab._msgFontUp()" title="Larger text">A+</button>`;
+    html += `</span>`;
     html += `<span class="close" onclick="CyberLab._closeTriage()">×</span>`;
     html += `</div>`;
 
@@ -4658,28 +4925,39 @@ html, body {
       flashScreen(0.9, 320);
       shake(300, 10);
       setTimeout(() => {
-        // phase 3: reset
-        G.modules = []; G.edges = []; G.packets = []; G.floaters = [];
+        // phase 3: SOFT reset — keep modules + wiring, game flows forever
+        G.packets = []; G.floaters = [];
         G.activeCases = []; G.resolvedCases = [];
         G.events = [];
         G.caseQueue.silent = [];
         G.cycle += 1;
+        // Apply pending act bonus then apply prestige multiplier
+        if (G._pendingBonus) { G.budget.pool += G._pendingBonus; G._pendingBonus = 0; }
+        G.budget.pool = Math.round(G.budget.pool * (INCOME.prestigeMult || 1.2));
         G.budget.spent = 0;
-        G.budget.pool = Math.round(G.budget.pool * INCOME.prestigeMult);
         G.income = { passive: 0, earned: 0 };
         G.lexTips = { shown: {}, lastTipT: 0 };
         G.charlotteCredits = 6 + G.cycle;
-        G.trust = 100;
+        G.trust = Math.max(60, G.trust); // carry trust, floor at 60
         G.stats = { firstCaseAt: 0, firstActionAt: 0, cases: { total: 0, correct: 0, wrong: 0 }, encryptionPrevented: false };
-        G.actIndex = Math.min(G.actIndex + 1, ACTS.length - 1);
-        // unlock next tier permanently
+        G.director.idleT = 0; G.director.overwhelmT = 0;
+        G.director.lastNudgeT = 0; G.director._firstCorrectDone = false;
+        G._endingScheduled = false; G._pressAlerted = {};
+        G.threatPressure = { identity: 0, endpoint: 0, network: 0, cloud: 0, correlated: 0 };
+        G._needsCache = []; G._upgradeBtns = [];
+        G.portalPullT = 0; G.portalVisible = false;
+        // Wrap actIndex so the game loops forever through all acts
+        G.actIndex = (G.actIndex + 1) % ACTS.length;
+        // Unlock next tier
         const nextTier = Math.min(5, Object.values(G.unlockedTiers).filter(x=>x).length + 1);
         G.unlockedTiers[nextTier] = true;
-        TIER_META[nextTier].unlocked = true;
+        if (TIER_META[nextTier]) TIER_META[nextTier].unlocked = true;
+        G.state = STATE.PLAYING;
         buildPalette();
+        scheduleAct(G.actIndex);
         updateHUD();
-        showCaption('CYCLE ' + String(G.cycle).padStart(2,'0') + ' BEGINS', ACTS[G.actIndex].adversary);
-        setTimeout(() => { startCampaign(); }, 1400);
+        showCaption('CYCLE ' + String(G.cycle).padStart(2,'0') + ' · ' + ACTS[G.actIndex].adversary, 'PRESTIGE · PIPELINE PRESERVED');
+        showVoicemail('INCOMING · CAO OPS', ACTS[G.actIndex].brief, 9000);
       }, 340);
     };
     requestAnimationFrame(step);
@@ -7405,6 +7683,22 @@ html, body {
       }
       SFX.charlotte();
       updateHUD();
+    },
+    _palFontUp() {
+      _palFontScale = Math.min(2, _palFontScale + 1);
+      applyPalFontScale();
+    },
+    _palFontDown() {
+      _palFontScale = Math.max(-1, _palFontScale - 1);
+      applyPalFontScale();
+    },
+    _msgFontUp() {
+      _msgFontScale = Math.min(2, _msgFontScale + 1);
+      applyMsgFontScale();
+    },
+    _msgFontDown() {
+      _msgFontScale = Math.max(-1, _msgFontScale - 1);
+      applyMsgFontScale();
     },
     _portalBtn() {
       if (!G.portalVisible) return;
