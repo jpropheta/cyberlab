@@ -1634,9 +1634,9 @@ html, body {
     { id: 'vuln_hunt',       needs: ['spotlight','overwatch'],                name: 'VULNERABILITY-LED HUNTING',
       color: '#F5A623', boost: 1.45,
       director: 'Spotlight plus OverWatch: known vulnerabilities now feed behavioral hunt queries. We are hunting the exploit, not waiting for the breach.' },
-    { id: 'vuln_hunt_elite', needs: ['spotlight_elite','overwatch'],          name: 'ZERO-DAY HUNT PROTOCOL',
+    { id: 'vuln_hunt_elite', needs: ['spotlight','overwatch'],                 name: 'ZERO-DAY HUNT PROTOCOL',
       color: '#FF8C00', boost: 1.75,
-      director: 'Spotlight Elite plus OverWatch: zero-day CVEs mapped to live adversary campaigns. We prosecute vulnerabilities before they are weaponized.' },
+      director: 'Spotlight plus OverWatch with elite upgrade: zero-day CVEs mapped to live adversary campaigns. We prosecute vulnerabilities before they are weaponized.' },
     { id: 'jit_zero',        needs: ['jit','id_sensor','ngsiem'],             name: 'ZERO STANDING PRIVILEGE',
       color: '#00E5FF', boost: 1.35,
       director: 'JIT + Identity + SIEM: every privileged session evaluated live against threat context. This is identity-first zero trust in practice.' },
@@ -3337,7 +3337,8 @@ html, body {
     }
     if (G.state === STATE.PLAYING) {
       if (ev.key === 'Escape') {
-        if ($('cl-triage').classList.contains('show')) closeTriage();
+        const triageEl = $('cl-triage');
+        if (triageEl && triageEl.classList.contains('show')) closeTriage();
       }
       // Delete / Backspace on a selected module removes it (full refund).
       if ((ev.key === 'Delete' || ev.key === 'Backspace') && G.selectedModule) {
@@ -3366,10 +3367,9 @@ html, body {
     fusion:      { title: 'FALCON FUSION · ONLINE',      msg: 'SOAR playbooks armed. The moment a detection fires, automated response kicks in. This is machine-speed defense.' },
     sandbox:     { title: 'FALCON SANDBOX · ONLINE',     msg: 'Detonation chamber active. Every suspicious binary gets exploded in isolation. We find the payload before it reaches production.' },
     idp:         { title: 'FALCON IDP · ONLINE',         msg: 'Identity policy enforcement active. Privilege escalation attempts will be blocked at the authentication layer, not after.' },
-    falcon_cloud:{ title: 'FALCON CLOUD · ONLINE',        msg: 'Unified cloud sensor active. CWP runtime telemetry, CNAPP posture auditing, CSPM drift detection — every cloud workload visible. No container, VM or serverless function runs blind.' },
     sgnl:        { title: 'FALCON ZERO TRUST · ONLINE',  msg: 'Zero trust architecture enforced. Every access request validated in real time. Standing privilege is dead in this environment.' },
     overwatch:   { title: 'FALCON OVERWATCH · ONLINE',   msg: 'CrowdStrike hunters are now watching your environment 24/7. Elite adversary tradecraft is their specialty. Nothing gets through clean.' },
-    falconx:     { title: 'FALCON INTELLIGENCE · ONLINE', msg: 'Adversary intelligence feeds live. Actor profiles, TTP mapping, campaign attribution — we know who they are before they know we are watching.' },
+    cao_intel:   { title: 'FALCON INTELLIGENCE · ONLINE', msg: 'Adversary intelligence feeds live. Actor profiles, TTP mapping, campaign attribution — we know who they are before they know we are watching.' },
     charlotte:   { title: 'CHARLOTTE AI · ONLINE',       msg: 'Agentic SOC analyst active. Charlotte processes signals at machine speed, correlates behavioral anomalies no human would catch in time.' },
     spotlight:   { title: 'FALCON SPOTLIGHT · ONLINE',   msg: 'Vulnerability radar active. Every CVE mapped to your exposed assets, ranked by adversary weaponization likelihood. We see your attack surface.' },
     spotlight_elite: { title: 'SPOTLIGHT ELITE · ONLINE', msg: 'Zero-day correlation engine online. CVEs are now mapped to live adversary campaigns. We know which vulnerability they plan to exploit next.' },
@@ -3624,9 +3624,11 @@ html, body {
   }
 
   function hexToRgb(hex) {
-    const r = parseInt(hex.slice(1,3),16);
-    const g = parseInt(hex.slice(3,5),16);
-    const b = parseInt(hex.slice(5,7),16);
+    if (!hex || typeof hex !== 'string') return '255,255,255';
+    const h = hex.replace('#','');
+    const r = parseInt(h.slice(0,2),16) || 255;
+    const g = parseInt(h.slice(2,4),16) || 255;
+    const b = parseInt(h.slice(4,6),16) || 255;
     return `${r},${g},${b}`;
   }
 
@@ -4606,8 +4608,8 @@ html, body {
     const f = $('cl-flash');
     if (!f) return;
     if (color) {
-      const r = hexToRgb(color) || {r:255,g:255,b:255};
-      f.style.background = `radial-gradient(ellipse at center, rgba(${r.r},${r.g},${r.b},0.7) 0%, rgba(${r.r},${r.g},${r.b},0.18) 60%, transparent 100%)`;
+      const rgb = hexToRgb(color) || '255,255,255';
+      f.style.background = `radial-gradient(ellipse at center, rgba(${rgb},0.7) 0%, rgba(${rgb},0.18) 60%, transparent 100%)`;
     } else {
       f.style.background = '';
     }
@@ -4621,18 +4623,20 @@ html, body {
   }
 
   function showCaption(big, small) {
-    $('cl-cap-big').textContent = big;
-    $('cl-cap-small').textContent = small || '';
+    const capBig = $('cl-cap-big'); if (capBig) capBig.textContent = big;
+    const capSmall = $('cl-cap-small'); if (capSmall) capSmall.textContent = small || '';
     const c = $('cl-caption');
+    if (!c) return;
     c.classList.add('show');
     clearTimeout(showCaption._t);
     showCaption._t = setTimeout(() => c.classList.remove('show'), 2600);
   }
 
   function showVoicemail(from, body, ms) {
-    $('cl-vm-from').textContent = from;
-    $('cl-vm-body').innerHTML = body;
+    const vmFrom = $('cl-vm-from'); if (vmFrom) vmFrom.textContent = from;
+    const vmBody = $('cl-vm-body'); if (vmBody) vmBody.innerHTML = body;
     const v = $('cl-voicemail');
+    if (!v) return;
     // SIGNAL ACTUAL gets amber styling; everything else gets cyan
     if (from === 'SIGNAL ACTUAL') v.classList.add('signal-actual');
     else v.classList.remove('signal-actual');
@@ -4918,6 +4922,7 @@ html, body {
     G.packets       = [];
     G.floaters      = [];
     G.caseQueue.silent = [];
+    G.caseQueue.lastSpawnT = 0; // reset spawn throttle for new act
     G.stats = { firstCaseAt: 0, firstActionAt: 0, cases: { total: 0, correct: 0, wrong: 0 }, encryptionPrevented: false };
     G.trust = Math.max(50, G.trust);  // trust persists but floor raised
     G.director.idleT = 0;
@@ -5008,6 +5013,7 @@ html, body {
     const stats = computeStats();
     G.tokens += stats.tokensEarned;
     updateHUD();
+    _lastSitrepT = 0; // reset cooldown so next act sitrep can fire immediately
     $('cl-portal-panel').classList.remove('show');
     $('cl-sitrep').classList.remove('show');  // must hide sitrep or new act re-triggers it
     runPortalSequence();
@@ -5058,11 +5064,14 @@ html, body {
       flashScreen(0.9, 320);
       shake(300, 10);
       setTimeout(() => {
+        if (G.state !== STATE.PORTALING) return; // guard: abort if state changed mid-animation
         // phase 3: SOFT reset — keep modules + wiring, game flows forever
         G.packets = []; G.floaters = [];
         G.activeCases = []; G.resolvedCases = [];
         G.events = [];
         G.caseQueue.silent = [];
+        G.caseQueue.lastSpawnT = 0; // reset spawn throttle for fresh act
+        _lastSitrepT = 0; // reset sitrep cooldown for fresh act
         G.cycle += 1;
         // Apply pending act bonus then apply prestige multiplier
         if (G._pendingBonus) { G.budget.pool += G._pendingBonus; G._pendingBonus = 0; }
@@ -7921,6 +7930,9 @@ html, body {
     });
     G.state = STATE.PLAYING;
     G.campT = 0;
+    G.loop = 0; // reset loop counter on new campaign
+    G.actIndex = 0; // start from act 1
+    _lastSitrepT = 0; // reset sitrep cooldown
     G.t0 = performance.now();
     G.stats = { firstCaseAt: 0, firstActionAt: 0, cases: { total: 0, correct: 0, wrong: 0 }, encryptionPrevented: false };
     G.activeCases = []; G.resolvedCases = [];
@@ -7930,6 +7942,7 @@ html, body {
     G.budget.spent = 0; G.budget.pool = 2000;
     G.income = { passive: 0, earned: 0 };
     G.caseQueue.silent = [];
+    G.caseQueue.lastSpawnT = 0; // reset spawn throttle
     G.lexTips = { shown: {}, lastTipT: 0 };
     // Starter kit — place but don't wire. Player must wire them correctly.
     // Anchored to the upper-LEFT quadrant so the cluster is immediately visible
